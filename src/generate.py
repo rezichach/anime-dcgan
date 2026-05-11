@@ -10,9 +10,7 @@ import tensorflow as tf
 from models import NOISE_DIM, build_generator
 
 
-# =========================
 # Settings
-# =========================
 
 EPOCH_TO_USE = 50          # Set to None to use latest checkpoint
 NUM_IMAGES = 16
@@ -24,9 +22,7 @@ OUTPUT_DIR = BASE_DIR / "outputs" / "generated"
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 
-# =========================
 # Find generator checkpoint
-# =========================
 
 if EPOCH_TO_USE is not None:
     GENERATOR_PATH = CHECKPOINTS_DIR / f"generator_epoch_{EPOCH_TO_USE:03d}.weights.h5"
@@ -48,9 +44,7 @@ else:
     GENERATOR_PATH = checkpoint_files[-1]
 
 
-# =========================
 # Load generator weights
-# =========================
 
 print(f"Loading generator weights from: {GENERATOR_PATH}")
 
@@ -60,9 +54,7 @@ generator.load_weights(str(GENERATOR_PATH))
 print("Generator loaded successfully.")
 
 
-# =========================
 # Generate new images
-# =========================
 
 noise = tf.random.normal([NUM_IMAGES, NOISE_DIM])
 generated_images = generator(noise, training=False)
@@ -74,9 +66,7 @@ generated_images = tf.clip_by_value(generated_images, 0, 1)
 generated_images = generated_images.numpy()
 
 
-# =========================
 # Save individual images
-# =========================
 
 for i in range(NUM_IMAGES):
     image_path = OUTPUT_DIR / f"generated_{i + 1:03d}.png"
@@ -91,9 +81,7 @@ for i in range(NUM_IMAGES):
     print(f"Saved: {image_path}")
 
 
-# =========================
 # Save grid image
-# =========================
 
 grid_size = math.ceil(math.sqrt(NUM_IMAGES))
 

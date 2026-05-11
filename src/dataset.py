@@ -1,18 +1,20 @@
 import os
 import tensorflow as tf
 import matplotlib.pyplot as plt
+from pathlib import Path
 
 IMAGE_SIZE = 64
 BATCH_SIZE = 32
 
-DATASET_PATH = r"D:\anime-dcgan\data\anime_faces"
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+
+DATASET_PATH = PROJECT_ROOT / "data" / "anime_faces"
 
 
 def load_and_preprocess_image(file_path):
     image = tf.io.read_file(file_path)
     image = tf.image.decode_image(image, channels=3, expand_animations=False)
 
-    # TensorFlow needs the shape after decode_image
     image.set_shape([None, None, 3])
 
     # Resize every image to 64x64
