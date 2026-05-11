@@ -1,0 +1,326 @@
+# Anime Face Generator with DCGAN
+
+A TensorFlow based Deep Convolutional Generative Adversarial Network project that trains on anime face images and generates new anime style faces from random noise.
+
+The project includes a custom image dataset loader, a DCGAN generator and discriminator, a training script that saves image samples and checkpoints, and a generation script that creates new images from trained generator weights.
+
+## Project Overview
+
+This project uses a GAN architecture with two neural networks:
+
+* Generator: creates fake anime face images from random noise.
+* Discriminator: tries to distinguish real anime face images from generated ones.
+
+During training, both models improve together. The generator learns to create more realistic anime faces, while the discriminator becomes better at detecting fake images.
+
+## Features
+
+* Loads anime face images from a local dataset folder
+* Resizes all images to 64 by 64 pixels
+* Normalizes image pixels to the range from minus 1 to 1
+* Builds a DCGAN style generator using transposed convolution layers
+* Builds a discriminator using convolution layers
+* Trains the GAN with Binary Cross Entropy loss
+* Saves generated sample grids after every epoch
+* Saves generator checkpoints after every epoch
+* Saves a training loss graph
+* Generates new anime face images from saved checkpoints
+
+## Project Structure
+
+```text
+anime-dcgan/
+│
+├── data/
+│   └── anime_faces/
+│       └── your image dataset here
+│
+├── outputs/
+│   ├── samples/
+│   │   └── generated image grids from training
+│   │
+│   ├── checkpoints/
+│   │   └── saved generator weights
+│   │
+│   ├── graphs/
+│   │   └── loss_curve.png
+│   │
+│   └── generated/
+│       └── final generated images
+│
+├── src/
+│   ├── dataset.py
+│   ├── models.py
+│   ├── train.py
+│   └── generate.py
+│
+└── README.md
+```
+
+## Requirements
+
+Install the required Python libraries:
+
+```bash
+pip install tensorflow matplotlib numpy
+```
+
+Recommended environment:
+
+* Python 3.10 is recommended
+* Python 3.9 to 3.12 should work
+* Python 3.14 is not recommended because TensorFlow may not support it properly
+* TensorFlow 2.x
+* A GPU is recommended for faster training, but the project can also run on CPU
+
+## Dataset Setup
+
+The dataset is not included in this repository because image datasets are usually too large to upload to GitHub. After cloning the project, create the dataset folder manually and place your anime face images inside it:
+
+```text
+data/anime_faces/
+```
+
+The project expects the dataset to be stored locally in this folder before training starts.
+
+Supported image formats:
+
+```text
+.jpg, .jpeg, .png, .bmp, .webp
+```
+
+The dataset loader automatically searches through the dataset folder and loads all supported image files.
+
+Each image is:
+
+1. Read from disk
+2. Decoded as a 3 channel RGB image
+3. Resized to 64 by 64 pixels
+4. Converted to floating point values
+5. Normalized from the original 0 to 255 pixel range into the minus 1 to 1 range
+
+This normalization matches the generator output, which uses a tanh activation function.
+
+## Model Architecture
+
+### Generator
+
+The generator takes a random noise vector of size 100 and transforms it into a 64 by 64 RGB image.
+
+Architecture flow:
+
+```text
+Noise vector 100
+→ Dense layer
+→ Reshape to 4 by 4 by 512
+→ Conv2DTranspose 256 filters
+→ Conv2DTranspose 128 filters
+→ Conv2DTranspose 64 filters
+→ Conv2DTranspose 3 filters
+→ Output image 64 by 64 by 3
+```
+
+The final layer uses `tanh`, so the generated image values are in the range from minus 1 to 1.
+
+### Discriminator
+
+The discriminator takes a 64 by 64 RGB image and outputs one number representing whether the image looks real or fake.
+
+Architecture flow:
+
+```text
+Input image 64 by 64 by 3
+→ Conv2D 64 filters
+→ Conv2D 128 filters
+→ Conv2D 256 filters
+→ Conv2D 512 filters
+→ Flatten
+→ Dense 1 output
+```
+
+The discriminator does not use a sigmoid activation at the end because the loss function uses `BinaryCrossentropy(from_logits=True)`.
+
+## Training
+
+To train the model, run:
+
+```bash
+python src/train.py
+```
+
+The training script uses these default settings:
+
+```text
+Image size: 64 by 64
+Batch size: 128
+Epochs: 50
+Noise dimension: 100
+Learning rate: 0.0002
+Adam beta 1: 0.5
+```
+
+During training, the script prints progress for every 10 batches, including:
+
+* Current epoch
+* Current batch
+* Generator loss
+* Discriminator loss
+
+After each epoch, the script saves:
+
+* A grid of generated sample images
+* Generator weights for that epoch
+
+At the end of training, it also saves a loss curve graph.
+
+## Training Outputs
+
+Generated samples are saved in:
+
+```text
+outputs/samples/
+```
+
+Generator checkpoints are saved in:
+
+```text
+outputs/checkpoints/
+```
+
+Loss graph is saved in:
+
+```text
+outputs/graphs/loss_curve.png
+```
+
+Example checkpoint file name:
+
+```text
+generator_epoch_050.weights.h5
+```
+
+## Generate New Images
+
+After training, generate new images with:
+
+```bash
+python src/generate.py
+```
+
+By default, the generation script uses epoch 50:
+
+```python
+EPOCH_TO_USE = 50
+```
+
+To use the latest available checkpoint instead, change it to:
+
+```python
+EPOCH_TO_USE = None
+```
+
+The generated images are saved in:
+
+```text
+outputs/generated/
+```
+
+The script saves both:
+
+* Individual generated images
+* A grid image containing all generated results
+
+Example output files:
+
+```text
+generated_001.png
+generated_002.png
+generated_grid_epoch_050.png
+```
+
+## Important Configuration
+
+You can edit these values in `train.py`:
+
+```python
+IMAGE_SIZE = 64
+BATCH_SIZE = 128
+EPOCHS = 50
+MAX_BATCHES_PER_EPOCH = None
+LEARNING_RATE = 0.0002
+BETA_1 = 0.5
+```
+
+For a quick smoke test, set:
+
+```python
+MAX_BATCHES_PER_EPOCH = 100
+```
+
+For full training, keep:
+
+```python
+MAX_BATCHES_PER_EPOCH = None
+```
+
+You can edit these values in `generate.py`:
+
+```python
+EPOCH_TO_USE = 50
+NUM_IMAGES = 16
+```
+
+## How It Works
+
+1. The dataset loader prepares real anime face images.
+2. The generator creates fake images from random noise.
+3. The discriminator compares real images and fake images.
+4. The discriminator learns to classify real and fake images correctly.
+5. The generator learns to fool the discriminator.
+6. After many epochs, the generator becomes better at creating anime style faces.
+
+## Notes
+
+* The dataset folder is not uploaded to GitHub. Each user should add their own images locally before training.
+* If you use Git, it is a good idea to keep the large image dataset out of the repository and only upload the source code.
+* Training GANs can be unstable, so losses may move up and down instead of decreasing smoothly.
+* Better results usually require more images, more epochs, and GPU acceleration.
+* If generated images look noisy at first, that is normal during early epochs.
+* The sample images saved after each epoch are useful for visually tracking improvement.
+
+## Troubleshooting
+
+### No images found
+
+Make sure your dataset folder contains supported image files:
+
+```text
+data/anime_faces/
+```
+
+### Checkpoint not found
+
+If `generate.py` cannot find a checkpoint, train the model first:
+
+```bash
+python src/train.py
+```
+
+Or change `EPOCH_TO_USE` in `generate.py` to match an existing checkpoint file.
+
+### TensorFlow is slow
+
+Training on CPU can be very slow. For better performance, use a machine with a CUDA compatible GPU and a TensorFlow version that supports GPU acceleration.
+
+## Future Improvements
+
+Possible upgrades for this project:
+
+* Add a `.gitignore` file to exclude the local dataset and generated outputs from GitHub
+* Add command line arguments for training and generation settings
+* Save both generator and discriminator checkpoints
+* Add image augmentation
+* Add a requirements.txt file
+* Add evaluation examples in the README
+* Create a simple web interface for generating images
+* Train on a larger or cleaner anime face dataset
