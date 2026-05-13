@@ -220,13 +220,19 @@ __marimo__/
 .streamlit/secrets.toml
 
 # Dataset / training images
-data/
+# Ignore everything inside data
+data/*
 
-# allow only samples
-!data/anime_faces/0_2000.jpg
-!data/anime_faces/1_2000.jpg
+# But allow the anime_faces folder itself
+!data/anime_faces/
 
-# optional: ignore generated outputs except a few
-outputs/generated/*
-!outputs/generated/generated_001.png
-!outputs/generated/generated_002.png
+# Ignore all images inside anime_faces
+data/anime_faces/*
+
+# But keep these real sample files
+!data/anime_faces/2_2000.jpg
+!data/anime_faces/3_2000.jpg
+!data/anime_faces/4_2000.jpg
+
+# Optional folder placeholder
+!data/anime_faces/.gitkeep
