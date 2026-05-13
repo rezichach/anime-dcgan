@@ -221,3 +221,12 @@ __marimo__/
 
 # Dataset / training images
 data/
+
+# allow only samples
+!data/anime_faces/0_2000.jpg
+!data/anime_faces/1_2000.jpg
+
+# optional: ignore generated outputs except a few
+outputs/generated/*
+!outputs/generated/generated_001.png
+!outputs/generated/generated_002.png
