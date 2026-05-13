@@ -11,18 +11,15 @@ import tensorflow as tf
 from dataset import create_dataset
 from models import build_generator, build_discriminator, NOISE_DIM
 
-
-# =========================
 # Basic settings
-# =========================
 
 IMAGE_SIZE = 64
 BATCH_SIZE = 128
 EPOCHS = 50
 
 # Smoke test mode:
-# Use 100 batches first so we do not wait forever.
-# Later, set this to None for full epochs.
+# Use 100 batches 
+# Later, set this to None
 MAX_BATCHES_PER_EPOCH = None
 
 LEARNING_RATE = 0.0002
@@ -31,9 +28,7 @@ BETA_1 = 0.5
 NUM_EXAMPLES_TO_GENERATE = 16
 
 
-# =========================
 # Project paths
-# =========================
 
 BASE_DIR = Path(__file__).resolve().parents[1]
 
@@ -49,9 +44,7 @@ CHECKPOINTS_DIR.mkdir(parents=True, exist_ok=True)
 GRAPHS_DIR.mkdir(parents=True, exist_ok=True)
 
 
-# =========================
 # Loss functions
-# =========================
 
 cross_entropy = tf.keras.losses.BinaryCrossentropy(from_logits=True)
 
@@ -76,9 +69,7 @@ def discriminator_loss(real_output, fake_output):
     return real_loss + fake_loss
 
 
-# =========================
 # Save generated images
-# =========================
 
 def save_generated_images(generator, epoch, seed):
     generated_images = generator(seed, training=False)
@@ -122,9 +113,7 @@ def save_loss_graph(generator_losses, discriminator_losses):
     print(f"Saved loss graph to: {output_path}")
 
 
-# =========================
 # One training step
-# =========================
 
 def train_step(real_images, generator, discriminator, generator_optimizer, discriminator_optimizer):
     current_batch_size = tf.shape(real_images)[0]
@@ -153,9 +142,7 @@ def train_step(real_images, generator, discriminator, generator_optimizer, discr
     return gen_loss, disc_loss
 
 
-# =========================
 # Training loop
-# =========================
 
 def train():
     print("Loading dataset...")
